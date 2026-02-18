@@ -1,0 +1,2802 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PensionPal — Secure Your Future</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --blue: #1A3AFF;
+      --blue-light: #4F6BFF;
+      --blue-dark: #0B1FA8;
+      --gold: #F5C842;
+      --gold-dark: #C9A020;
+      --white: #FFFFFF;
+      --bg: #F4F6FF;
+      --surface: #FFFFFF;
+      --surface2: #EEF1FF;
+      --text: #0D1333;
+      --text2: #4A5078;
+      --border: #D8DEFF;
+      --success: #22C55E;
+      --danger: #EF4444;
+      --sidebar-w: 260px;
+      --header-h: 68px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 99px;
+    }
+
+    /* ── LAYOUT ── */
+    #app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: var(--text);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      transition: transform .3s ease;
+    }
+
+    .sidebar-logo {
+      padding: 28px 24px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sidebar-logo .logo-icon {
+      width: 38px;
+      height: 38px;
+      background: var(--gold);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .sidebar-logo span {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--white);
+    }
+
+    .sidebar-logo span b {
+      color: var(--gold);
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 20px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      color: rgba(255, 255, 255, .55);
+      font-size: 14.5px;
+      font-weight: 500;
+      transition: all .2s;
+      text-decoration: none;
+      border: none;
+      background: none;
+      width: 100%;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, .07);
+      color: var(--white);
+    }
+
+    .nav-item.active {
+      background: var(--blue);
+      color: var(--white);
+    }
+
+    .nav-item .nav-icon {
+      font-size: 18px;
+      width: 22px;
+      text-align: center;
+    }
+
+    .sidebar-bottom {
+      padding: 16px 12px 24px;
+      border-top: 1px solid rgba(255, 255, 255, .08);
+    }
+
+    .main-content {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      height: var(--header-h);
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .topbar-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .topbar-xp {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface2);
+      border-radius: 99px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--blue);
+    }
+
+    .topbar-avatar {
+      width: 38px;
+      height: 38px;
+      background: var(--blue);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    .page-content {
+      padding: 32px;
+      flex: 1;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    /* ── AUTH PAGES ── */
+    #auth-wrapper {
+      min-height: 100vh;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0D1333 0%, #1A3AFF 60%, #0D1333 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #auth-wrapper.active {
+      display: flex;
+    }
+
+    #auth-wrapper::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 30% 50%, rgba(245, 200, 66, .15) 0%, transparent 60%);
+    }
+
+    .auth-card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 44px 40px;
+      width: 100%;
+      max-width: 440px;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 32px 80px rgba(0, 0, 0, .3);
+    }
+
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .auth-logo .logo-big {
+      width: 54px;
+      height: 54px;
+      background: var(--text);
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .auth-logo h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+    }
+
+    .auth-logo h1 span {
+      color: var(--blue);
+    }
+
+    .auth-logo p {
+      color: var(--text2);
+      font-size: 13.5px;
+      margin-top: 4px;
+    }
+
+    .auth-tabs {
+      display: flex;
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 24px;
+    }
+
+    .auth-tab {
+      flex: 1;
+      text-align: center;
+      padding: 9px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text2);
+      transition: all .2s;
+    }
+
+    .auth-tab.active {
+      background: var(--white);
+      color: var(--blue);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .1);
+    }
+
+    .auth-form {
+      display: none;
+    }
+
+    .auth-form.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border .2s;
+      background: var(--white);
+      color: var(--text);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--blue);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-size: 14.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all .2s;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: var(--white);
+      width: 100%;
+    }
+
+    .btn-primary:hover {
+      background: var(--blue-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      color: var(--text);
+    }
+
+    .btn-gold:hover {
+      background: var(--gold-dark);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: var(--white);
+    }
+
+    .otp-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .otp-input {
+      flex: 1;
+      padding: 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: 700;
+      outline: none;
+      transition: border .2s;
+    }
+
+    .otp-input:focus {
+      border-color: var(--blue);
+    }
+
+    .auth-divider {
+      text-align: center;
+      color: var(--text2);
+      font-size: 13px;
+      margin: 16px 0;
+      position: relative;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 42%;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .auth-divider::before {
+      left: 0;
+    }
+
+    .auth-divider::after {
+      right: 0;
+    }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 12px rgba(26, 58, 255, .04);
+    }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .mb-24 {
+      margin-bottom: 24px;
+    }
+
+    .mb-16 {
+      margin-bottom: 16px;
+    }
+
+    .flex {
+      display: flex;
+    }
+
+    .flex-between {
+      justify-content: space-between;
+    }
+
+    .items-center {
+      align-items: center;
+    }
+
+    .gap-12 {
+      gap: 12px;
+    }
+
+    .gap-8 {
+      gap: 8px;
+    }
+
+    /* ── DASHBOARD ── */
+    .stat-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 22px;
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      bottom: -20px;
+      right: -20px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--surface2);
+      opacity: .6;
+    }
+
+    .stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: 14px;
+    }
+
+    .stat-icon.blue {
+      background: rgba(26, 58, 255, .1);
+    }
+
+    .stat-icon.gold {
+      background: rgba(245, 200, 66, .15);
+    }
+
+    .stat-icon.green {
+      background: rgba(34, 197, 94, .1);
+    }
+
+    .stat-icon.purple {
+      background: rgba(139, 92, 246, .1);
+    }
+
+    .stat-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--text2);
+      margin-top: 4px;
+    }
+
+    .stat-change {
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 6px;
+    }
+
+    .stat-change.up {
+      color: var(--success);
+    }
+
+    .progress-ring-wrap {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .progress-ring-svg {
+      transform: rotate(-90deg);
+    }
+
+    .progress-ring-info h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .progress-ring-info p {
+      color: var(--text2);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .progress-ring-info .target {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--blue);
+      margin-top: 8px;
+    }
+
+    .challenge-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .challenge-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .challenge-icon {
+      font-size: 24px;
+    }
+
+    .challenge-info {
+      flex: 1;
+    }
+
+    .challenge-info h4 {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .challenge-info p {
+      font-size: 12px;
+      color: var(--text2);
+      margin-top: 2px;
+    }
+
+    .challenge-bar {
+      height: 6px;
+      background: var(--bg);
+      border-radius: 99px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+
+    .challenge-fill {
+      height: 100%;
+      background: var(--blue);
+      border-radius: 99px;
+      transition: width .6s ease;
+    }
+
+    .challenge-xp {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gold-dark);
+      background: rgba(245, 200, 66, .15);
+      padding: 4px 10px;
+      border-radius: 99px;
+    }
+
+    .quick-action {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 20px;
+      background: var(--surface2);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all .2s;
+      border: 1.5px solid transparent;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .quick-action:hover {
+      border-color: var(--blue);
+      background: rgba(26, 58, 255, .05);
+      color: var(--blue);
+    }
+
+    .quick-action .qa-icon {
+      font-size: 26px;
+    }
+
+    /* ── LEARN ── */
+    .lesson-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all .2s;
+      margin-bottom: 12px;
+    }
+
+    .lesson-card:hover {
+      border-color: var(--blue);
+      transform: translateX(4px);
+    }
+
+    .lesson-card.completed {
+      border-color: var(--success);
+    }
+
+    .lesson-thumb {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .lesson-thumb.blue {
+      background: rgba(26, 58, 255, .1);
+    }
+
+    .lesson-thumb.gold {
+      background: rgba(245, 200, 66, .15);
+    }
+
+    .lesson-thumb.green {
+      background: rgba(34, 197, 94, .1);
+    }
+
+    .lesson-thumb.purple {
+      background: rgba(139, 92, 246, .1);
+    }
+
+    .lesson-meta {
+      flex: 1;
+    }
+
+    .lesson-meta h3 {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .lesson-meta p {
+      font-size: 12.5px;
+      color: var(--text2);
+      margin-top: 3px;
+    }
+
+    .lesson-tags {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 99px;
+      font-weight: 600;
+    }
+
+    .tag-blue {
+      background: rgba(26, 58, 255, .1);
+      color: var(--blue);
+    }
+
+    .tag-gold {
+      background: rgba(245, 200, 66, .2);
+      color: var(--gold-dark);
+    }
+
+    .tag-green {
+      background: rgba(34, 197, 94, .1);
+      color: #16a34a;
+    }
+
+    .lesson-xp {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gold-dark);
+    }
+
+    .lesson-check {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--success);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 12px;
+    }
+
+    /* ── LESSON DETAIL ── */
+    .lesson-detail-header {
+      background: var(--text);
+      border-radius: 16px;
+      padding: 28px;
+      color: var(--white);
+      margin-bottom: 24px;
+    }
+
+    .lesson-detail-header h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .lesson-detail-header p {
+      opacity: .7;
+      font-size: 14px;
+    }
+
+    .micro-card {
+      background: var(--white);
+      border-radius: 14px;
+      border: 1.5px solid var(--border);
+      padding: 22px;
+      margin-bottom: 16px;
+    }
+
+    .micro-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .micro-card p {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text2);
+    }
+
+    .quiz-option {
+      padding: 12px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all .2s;
+      font-size: 14px;
+    }
+
+    .quiz-option:hover {
+      border-color: var(--blue);
+      background: var(--surface2);
+    }
+
+    .quiz-option.correct {
+      border-color: var(--success);
+      background: rgba(34, 197, 94, .08);
+    }
+
+    .quiz-option.wrong {
+      border-color: var(--danger);
+      background: rgba(239, 68, 68, .08);
+    }
+
+    .xp-toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: var(--text);
+      color: var(--gold);
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      padding: 14px 24px;
+      border-radius: 14px;
+      z-index: 9999;
+      transform: translateY(100px);
+      transition: transform .4s cubic-bezier(.34, 1.56, .64, 1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, .25);
+    }
+
+    .xp-toast.show {
+      transform: translateY(0);
+    }
+
+    /* ── SIMULATOR ── */
+    .slider-group {
+      margin-bottom: 20px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 13.5px;
+    }
+
+    .slider-label span {
+      font-weight: 600;
+    }
+
+    .slider-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--blue);
+    }
+
+    input[type=range] {
+      width: 100%;
+      -webkit-appearance: none;
+      height: 6px;
+      background: var(--surface2);
+      border-radius: 99px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--blue);
+      box-shadow: 0 0 0 4px rgba(26, 58, 255, .15);
+      cursor: pointer;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .result-box {
+      background: var(--surface2);
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+    }
+
+    .result-box .r-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--blue);
+    }
+
+    .result-box .r-label {
+      font-size: 12px;
+      color: var(--text2);
+      margin-top: 4px;
+    }
+
+    .result-box.gold-box {
+      background: rgba(245, 200, 66, .12);
+    }
+
+    .result-box.gold-box .r-value {
+      color: var(--gold-dark);
+    }
+
+    .compare-toggle {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .toggle-btn {
+      padding: 8px 16px;
+      border-radius: 99px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1.5px solid var(--border);
+      background: var(--white);
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .toggle-btn.active {
+      background: var(--blue);
+      color: var(--white);
+      border-color: var(--blue);
+    }
+
+    /* ── LEADERBOARD ── */
+    .lb-podium {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .podium-item {
+      text-align: center;
+    }
+
+    .podium-bar {
+      border-radius: 10px 10px 0 0;
+      width: 80px;
+      margin: 0 auto 8px;
+    }
+
+    .podium-bar.p1 {
+      height: 90px;
+      background: var(--gold);
+    }
+
+    .podium-bar.p2 {
+      height: 65px;
+      background: var(--blue-light);
+    }
+
+    .podium-bar.p3 {
+      height: 50px;
+      background: var(--border);
+    }
+
+    .podium-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      margin: 0 auto 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--white);
+    }
+
+    .podium-name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .podium-xp {
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    .lb-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      background: var(--white);
+      border-radius: 12px;
+      margin-bottom: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .lb-row.me {
+      border-color: var(--blue);
+      background: rgba(26, 58, 255, .03);
+    }
+
+    .lb-rank {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      width: 28px;
+      color: var(--text2);
+    }
+
+    .lb-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: var(--white);
+      font-size: 14px;
+    }
+
+    .lb-info {
+      flex: 1;
+    }
+
+    .lb-info h4 {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .lb-info p {
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    .lb-xp {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--blue);
+    }
+
+    .badge-item {
+      font-size: 24px;
+    }
+
+    /* ── PROFILE ── */
+    .profile-header-card {
+      background: linear-gradient(135deg, var(--text) 0%, var(--blue-dark) 100%);
+      border-radius: 16px;
+      padding: 28px;
+      color: var(--white);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .profile-avatar-big {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+
+    .profile-header-card h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .profile-header-card p {
+      opacity: .7;
+      font-size: 13.5px;
+      margin-top: 4px;
+    }
+
+    .level-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--gold);
+      color: var(--text);
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 10px;
+    }
+
+    .badge-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .badge-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 16px 20px;
+      background: var(--surface2);
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text2);
+      min-width: 80px;
+    }
+
+    .badge-card .badge-ico {
+      font-size: 28px;
+    }
+
+    .badge-card.unlocked {
+      color: var(--text);
+    }
+
+    .badge-card.locked {
+      opacity: .4;
+    }
+
+    .sim-history-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sim-history-item:last-child {
+      border-bottom: none;
+    }
+
+    .sim-history-item .sh-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--surface2);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .sim-history-item .sh-info {
+      flex: 1;
+    }
+
+    .sim-history-item .sh-info h4 {
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+
+    .sim-history-item .sh-info p {
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    .sh-corpus {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--blue);
+    }
+
+    /* ── CHAT ── */
+    .chat-layout {
+      display: flex;
+      gap: 0;
+      height: calc(100vh - var(--header-h) - 64px);
+    }
+
+    .chat-sidebar {
+      width: 280px;
+      border-right: 1px solid var(--border);
+      background: var(--white);
+      border-radius: 16px 0 0 16px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-sidebar-header {
+      padding: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .chat-sidebar-header h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .chat-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+
+    .chat-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .chat-item:hover,
+    .chat-item.active {
+      background: var(--surface2);
+    }
+
+    .chat-item-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: var(--white);
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .chat-item-info {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .chat-item-info h4 {
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chat-item-info p {
+      font-size: 12px;
+      color: var(--text2);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chat-unread {
+      background: var(--blue);
+      color: var(--white);
+      font-size: 10px;
+      font-weight: 700;
+      min-width: 18px;
+      height: 18px;
+      border-radius: 99px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+    }
+
+    .chat-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--white);
+      border-radius: 0 16px 16px 0;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chat-header-info h3 {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .chat-header-info p {
+      font-size: 12px;
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: #FAFBFF;
+    }
+
+    .msg {
+      display: flex;
+      gap: 8px;
+      max-width: 70%;
+    }
+
+    .msg.sent {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .msg-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--white);
+      flex-shrink: 0;
+    }
+
+    .msg-bubble {
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-size: 13.5px;
+      line-height: 1.5;
+    }
+
+    .msg.received .msg-bubble {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 4px 14px 14px 14px;
+    }
+
+    .msg.sent .msg-bubble {
+      background: var(--blue);
+      color: var(--white);
+      border-radius: 14px 4px 14px 14px;
+    }
+
+    .msg-time {
+      font-size: 11px;
+      color: var(--text2);
+      margin-top: 4px;
+    }
+
+    .msg.sent .msg-time {
+      text-align: right;
+    }
+
+    .chat-input-area {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 11px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 99px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border .2s;
+      background: var(--bg);
+    }
+
+    .chat-input:focus {
+      border-color: var(--blue);
+    }
+
+    .chat-send {
+      width: 40px;
+      height: 40px;
+      background: var(--blue);
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: var(--white);
+      transition: transform .2s;
+    }
+
+    .chat-send:hover {
+      transform: scale(1.08);
+    }
+
+    /* ── MISC ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .section-header h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .text-blue {
+      color: var(--blue);
+    }
+
+    .text-gold {
+      color: var(--gold-dark);
+    }
+
+    .text-sm {
+      font-size: 13px;
+    }
+
+    .text-muted {
+      color: var(--text2);
+    }
+
+    .fw-700 {
+      font-weight: 700;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text2);
+      cursor: pointer;
+      font-size: 13.5px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      transition: color .2s;
+      border: none;
+      background: none;
+    }
+
+    .back-btn:hover {
+      color: var(--blue);
+    }
+
+    .notification {
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      margin-bottom: 16px;
+    }
+
+    .notification.success {
+      background: rgba(34, 197, 94, .1);
+      color: #16a34a;
+      border: 1px solid rgba(34, 197, 94, .2);
+    }
+
+    .notification.error {
+      background: rgba(239, 68, 68, .08);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, .2);
+    }
+
+    .notification.info {
+      background: rgba(26, 58, 255, .08);
+      color: var(--blue);
+      border: 1px solid rgba(26, 58, 255, .15);
+    }
+
+    #notif-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .notif-pop {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 14px 18px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, .12);
+      border-left: 4px solid var(--blue);
+      font-size: 13.5px;
+      min-width: 260px;
+      transform: translateX(120%);
+      transition: transform .35s cubic-bezier(.34, 1.56, .64, 1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .notif-pop.show {
+      transform: translateX(0);
+    }
+
+    .notif-pop.success {
+      border-color: var(--success);
+    }
+
+    .notif-pop.gold {
+      border-color: var(--gold);
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .chip-blue {
+      background: rgba(26, 58, 255, .1);
+      color: var(--blue);
+    }
+
+    .chip-green {
+      background: rgba(34, 197, 94, .1);
+      color: #16a34a;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 260px;
+    }
+
+    /* Profile edit form */
+    .profile-section {
+      margin-bottom: 24px;
+    }
+
+    .profile-section h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    @media(max-width:1100px) {
+      .grid-4 {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media(max-width:900px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .grid-3 {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .chat-layout {
+        flex-direction: column;
+        height: auto;
+      }
+
+      .chat-sidebar {
+        width: 100%;
+        border-radius: 16px 16px 0 0;
+        height: 200px;
+      }
+
+      .chat-main {
+        border-radius: 0 0 16px 16px;
+        height: 400px;
+      }
+
+      .result-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NOTIFICATION CONTAINER -->
+  <div id="notif-container"></div>
+  <!-- XP TOAST -->
+  <div class="xp-toast" id="xp-toast">⚡ +50 XP Earned!</div>
+
+  <!-- AUTH WRAPPER -->
+  <div id="auth-wrapper" class="active">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="logo-big">🏛️</div>
+        <h1>Pension<span>Pal</span></h1>
+        <p>Secure your future, one step at a time</p>
+      </div>
+      <div class="auth-tabs">
+        <div class="auth-tab active" onclick="switchAuth('login')">Log In</div>
+        <div class="auth-tab" onclick="switchAuth('signup')">Sign Up</div>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div class="auth-form active" id="form-login">
+        <div id="login-step-1">
+          <div class="form-group">
+            <label>Email or Mobile Number</label>
+            <input type="text" id="login-email" placeholder="you@email.com or 9876543210" value="demo@pensionpal.in">
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="login-pass" placeholder="Enter your password" value="demo1234">
+          </div>
+          <button class="btn btn-primary" onclick="handleLogin()">Send OTP & Continue →</button>
+        </div>
+        <div id="login-step-2" style="display:none">
+          <p style="font-size:13.5px;color:var(--text2);margin-bottom:16px;">OTP sent to
+            <strong>demo@pensionpal.in</strong>. Use <strong>1234</strong> for demo.</p>
+          <div class="otp-group">
+            <input class="otp-input" maxlength="1" oninput="otpNext(this,0)" id="otp0">
+            <input class="otp-input" maxlength="1" oninput="otpNext(this,1)" id="otp1">
+            <input class="otp-input" maxlength="1" oninput="otpNext(this,2)" id="otp2">
+            <input class="otp-input" maxlength="1" oninput="otpNext(this,3)" id="otp3">
+          </div>
+          <button class="btn btn-primary" onclick="verifyOTP()">Verify & Login →</button>
+        </div>
+      </div>
+
+      <!-- SIGNUP FORM -->
+      <div class="auth-form" id="form-signup">
+        <div id="signup-step-1">
+          <div class="form-row">
+            <div class="form-group"><label>First Name</label><input type="text" id="su-fname" placeholder="Ravi"></div>
+            <div class="form-group"><label>Last Name</label><input type="text" id="su-lname" placeholder="Sharma"></div>
+          </div>
+          <div class="form-group"><label>Email Address</label><input type="email" id="su-email"
+              placeholder="ravi@email.com"></div>
+          <div class="form-group"><label>Mobile Number</label><input type="tel" id="su-mobile" placeholder="9876543210">
+          </div>
+          <div class="form-group"><label>Password</label><input type="password" id="su-pass"
+              placeholder="Create a strong password"></div>
+          <button class="btn btn-primary" onclick="signupStep2()">Next: Profile Setup →</button>
+        </div>
+        <div id="signup-step-2" style="display:none">
+          <div class="form-row">
+            <div class="form-group"><label>Current Age</label><input type="number" id="su-age" placeholder="25" min="18"
+                max="55"></div>
+            <div class="form-group"><label>Monthly Income (₹)</label><input type="number" id="su-income"
+                placeholder="45000"></div>
+          </div>
+          <div class="form-group">
+            <label>Target Retirement Age</label>
+            <select id="su-retire">
+              <option value="55">55 years</option>
+              <option value="60" selected>60 years</option>
+              <option value="65">65 years</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Occupation</label>
+            <select id="su-occ">
+              <option>Salaried Professional</option>
+              <option>Self Employed</option>
+              <option>Student</option>
+              <option>Freelancer</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="createAccount()">Create Account 🎉</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app" style="display:none;">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">🏛️</div>
+        <span>Pension<b>Pal</b></span>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" onclick="navigate('dashboard')" id="nav-dashboard">
+          <span class="nav-icon">🏠</span> Dashboard
+        </button>
+        <button class="nav-item" onclick="navigate('learn')" id="nav-learn">
+          <span class="nav-icon">📘</span> Learn
+        </button>
+        <button class="nav-item" onclick="navigate('simulator')" id="nav-simulator">
+          <span class="nav-icon">🔮</span> Simulator
+        </button>
+        <button class="nav-item" onclick="navigate('leaderboard')" id="nav-leaderboard">
+          <span class="nav-icon">🏆</span> Leaderboard
+        </button>
+        <button class="nav-item" onclick="navigate('chat')" id="nav-chat">
+          <span class="nav-icon">💬</span> Community Chat
+        </button>
+        <button class="nav-item" onclick="navigate('profile')" id="nav-profile">
+          <span class="nav-icon">👤</span> Profile
+        </button>
+      </nav>
+      <div class="sidebar-bottom">
+        <button class="nav-item" onclick="logout()" style="color:rgba(255,255,255,.4);">
+          <span class="nav-icon">🚪</span> Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main-content">
+      <header class="topbar">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="topbar-title" id="page-title">Dashboard</div>
+        </div>
+        <div class="topbar-right">
+          <div class="topbar-xp">⚡ <span id="xp-display">1250</span> XP</div>
+          <div class="topbar-avatar" id="topbar-avatar" onclick="navigate('profile')">R</div>
+        </div>
+      </header>
+
+      <div class="page-content">
+
+        <!-- ═══════════ DASHBOARD ═══════════ -->
+        <div class="page active" id="page-dashboard">
+          <div class="grid-4 mb-24">
+            <div class="stat-card">
+              <div class="stat-icon blue">🏛️</div>
+              <div class="stat-value">₹1.2L</div>
+              <div class="stat-label">Projected Corpus (est.)</div>
+              <div class="stat-change up">↑ 12% this month</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon gold">⚡</div>
+              <div class="stat-value" id="dash-xp">1,250</div>
+              <div class="stat-label">XP Points Earned</div>
+              <div class="stat-change up">Level 3 — Navigator</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon green">🔥</div>
+              <div class="stat-value" id="dash-streak">7</div>
+              <div class="stat-label">Day Learning Streak</div>
+              <div class="stat-change up">↑ Keep it going!</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon purple">📘</div>
+              <div class="stat-value">3/6</div>
+              <div class="stat-label">Lessons Completed</div>
+              <div class="stat-change up">50% progress</div>
+            </div>
+          </div>
+
+          <div class="grid-2 mb-24">
+            <div class="card">
+              <div class="card-title">Retirement Goal Progress</div>
+              <div class="progress-ring-wrap">
+                <svg class="progress-ring-svg" width="110" height="110">
+                  <circle cx="55" cy="55" r="46" fill="none" stroke="var(--surface2)" stroke-width="10" />
+                  <circle id="ring-circle" cx="55" cy="55" r="46" fill="none" stroke="var(--blue)" stroke-width="10"
+                    stroke-dasharray="289" stroke-dashoffset="202" stroke-linecap="round" />
+                </svg>
+                <div class="progress-ring-info">
+                  <h3>30%</h3>
+                  <p>of retirement goal achieved</p>
+                  <div class="target">🎯 Target: ₹2.5 Cr by age 60</div>
+                  <div style="margin-top:10px;">
+                    <div style="font-size:12px;color:var(--text2);">Current projected: <strong>₹75L</strong></div>
+                    <div style="font-size:12px;color:var(--text2);">Monthly contribution: <strong>₹3,000</strong></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">Active Challenges</div>
+              <div class="challenge-item">
+                <div class="challenge-icon">💰</div>
+                <div class="challenge-info">
+                  <h4>Monthly Savings Challenge</h4>
+                  <p>Contribute ₹3000 this month</p>
+                  <div class="challenge-bar">
+                    <div class="challenge-fill" style="width:70%"></div>
+                  </div>
+                </div>
+                <div class="challenge-xp">+100 XP</div>
+              </div>
+              <div class="challenge-item">
+                <div class="challenge-icon">🔥</div>
+                <div class="challenge-info">
+                  <h4>7-Day Learning Streak</h4>
+                  <p>Complete a lesson every day</p>
+                  <div class="challenge-bar">
+                    <div class="challenge-fill" style="width:100%;background:var(--success)"></div>
+                  </div>
+                </div>
+                <div class="challenge-xp">✅ Done</div>
+              </div>
+              <div class="challenge-item">
+                <div class="challenge-icon">🎯</div>
+                <div class="challenge-info">
+                  <h4>Consistency Goal</h4>
+                  <p>3 consecutive contributions</p>
+                  <div class="challenge-bar">
+                    <div class="challenge-fill" style="width:33%"></div>
+                  </div>
+                </div>
+                <div class="challenge-xp">+75 XP</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-24">
+            <div class="section-header">
+              <h2>Quick Actions</h2>
+            </div>
+            <div class="grid-4">
+              <div class="quick-action" onclick="navigate('learn')">
+                <div class="qa-icon">📘</div>
+                Start Learning
+              </div>
+              <div class="quick-action" onclick="navigate('simulator')">
+                <div class="qa-icon">🔮</div>
+                Run Simulation
+              </div>
+              <div class="quick-action" onclick="navigate('leaderboard')">
+                <div class="qa-icon">🏆</div>
+                Leaderboard
+              </div>
+              <div class="quick-action" onclick="navigate('chat')">
+                <div class="qa-icon">💬</div>
+                Community Chat
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Portfolio Growth Trend</div>
+            <div class="chart-wrap">
+              <canvas id="dashChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════ LEARN ═══════════ -->
+        <div class="page" id="page-learn">
+          <div class="notification info mb-16">📘 Complete lessons to earn XP and unlock badges. Quizzes give bonus XP!
+          </div>
+          <div class="section-header mb-16">
+            <h2>Learning Modules</h2>
+            <span class="chip chip-blue">3/6 Completed</span>
+          </div>
+          <div id="lesson-list">
+            <div class="lesson-card completed" onclick="openLesson(0)">
+              <div class="lesson-thumb blue">🏛️</div>
+              <div class="lesson-meta">
+                <h3>What is NPS?</h3>
+                <p>Introduction to National Pension System — how it works and why it matters</p>
+                <div class="lesson-tags">
+                  <span class="tag tag-blue">Beginner</span>
+                  <span class="tag tag-green">✅ Completed</span>
+                </div>
+              </div>
+              <div>
+                <div class="lesson-xp">+80 XP</div>
+                <div class="lesson-check" style="margin-top:8px;">✓</div>
+              </div>
+            </div>
+            <div class="lesson-card completed" onclick="openLesson(1)">
+              <div class="lesson-thumb gold">📊</div>
+              <div class="lesson-meta">
+                <h3>Tier I vs Tier II Accounts</h3>
+                <p>Understand the key differences and tax benefits of each NPS account type</p>
+                <div class="lesson-tags">
+                  <span class="tag tag-blue">Beginner</span>
+                  <span class="tag tag-green">✅ Completed</span>
+                </div>
+              </div>
+              <div>
+                <div class="lesson-xp">+80 XP</div>
+                <div class="lesson-check" style="margin-top:8px;">✓</div>
+              </div>
+            </div>
+            <div class="lesson-card completed" onclick="openLesson(2)">
+              <div class="lesson-thumb green">📈</div>
+              <div class="lesson-meta">
+                <h3>Power of Compounding</h3>
+                <p>Why starting early makes a massive difference to your retirement corpus</p>
+                <div class="lesson-tags">
+                  <span class="tag tag-blue">Intermediate</span>
+                  <span class="tag tag-green">✅ Completed</span>
+                </div>
+              </div>
+              <div>
+                <div class="lesson-xp">+80 XP</div>
+                <div class="lesson-check" style="margin-top:8px;">✓</div>
+              </div>
+            </div>
+            <div class="lesson-card" onclick="openLesson(3)">
+              <div class="lesson-thumb purple">🎯</div>
+              <div class="lesson-meta">
+                <h3>Retirement Planning Basics</h3>
+                <p>Setting realistic goals and building a comprehensive retirement roadmap</p>
+                <div class="lesson-tags">
+                  <span class="tag tag-blue">Intermediate</span>
+                  <span class="tag tag-gold">🔒 Unlocked</span>
+                </div>
+              </div>
+              <div class="lesson-xp">+80 XP</div>
+            </div>
+            <div class="lesson-card" onclick="openLesson(4)">
+              <div class="lesson-thumb blue">🛡️</div>
+              <div class="lesson-meta">
+                <h3>NPS Tax Benefits</h3>
+                <p>Section 80C, 80CCD(1B) — save up to ₹2L extra in taxes with NPS</p>
+                <div class="lesson-tags">
+                  <span class="tag tag-blue">Advanced</span>
+                  <span class="tag tag-gold">🔒 Locked</span>
+                </div>
+              </div>
+              <div class="lesson-xp">+80 XP</div>
+            </div>
+            <div class="lesson-card" onclick="openLesson(5)">
+              <div class="lesson-thumb gold">💼</div>
+              <div class="lesson-meta">
+                <h3>Asset Allocation Strategy</h3>
+                <p>Equity, Corporate Bonds, Government Securities — building the right portfolio mix</p>
+                <div class="lesson-tags">
+                  <span class="tag tag-blue">Advanced</span>
+                  <span class="tag tag-gold">🔒 Locked</span>
+                </div>
+              </div>
+              <div class="lesson-xp">+80 XP</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════ LESSON DETAIL ═══════════ -->
+        <div class="page" id="page-lesson">
+          <button class="back-btn" onclick="navigate('learn')">← Back to Lessons</button>
+          <div id="lesson-detail-content"></div>
+        </div>
+
+        <!-- ═══════════ SIMULATOR ═══════════ -->
+        <div class="page" id="page-simulator">
+          <div class="grid-2 mb-24">
+            <div class="card">
+              <div class="card-title">Configure Your Simulation</div>
+              <div class="slider-group">
+                <div class="slider-label"><span>Current Age</span><span class="slider-value" id="sv-age">25</span></div>
+                <input type="range" id="sl-age" min="18" max="50" value="25" oninput="updateSim()">
+              </div>
+              <div class="slider-group">
+                <div class="slider-label"><span>Retirement Age</span><span class="slider-value" id="sv-retire">60</span>
+                </div>
+                <input type="range" id="sl-retire" min="50" max="70" value="60" oninput="updateSim()">
+              </div>
+              <div class="slider-group">
+                <div class="slider-label"><span>Monthly Investment</span><span class="slider-value"
+                    id="sv-invest">₹3,000</span></div>
+                <input type="range" id="sl-invest" min="500" max="50000" step="500" value="3000" oninput="updateSim()">
+              </div>
+              <div class="slider-group">
+                <div class="slider-label"><span>Expected Annual Return</span><span class="slider-value"
+                    id="sv-rate">10%</span></div>
+                <input type="range" id="sl-rate" min="6" max="15" value="10" oninput="updateSim()">
+              </div>
+              <div style="margin-top:20px;">
+                <div class="card-title" style="margin-bottom:12px;">Compare Scenarios</div>
+                <div class="compare-toggle">
+                  <button class="toggle-btn active" id="cmp-age-btn" onclick="toggleCompare('age')">Start at 22 vs
+                    30</button>
+                  <button class="toggle-btn" id="cmp-inv-btn" onclick="toggleCompare('inv')">₹2000 vs ₹5000</button>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title">Projected Results</div>
+              <div class="result-grid">
+                <div class="result-box">
+                  <div class="r-value" id="res-corpus">₹1.2 Cr</div>
+                  <div class="r-label">Retirement Corpus</div>
+                </div>
+                <div class="result-box gold-box">
+                  <div class="r-value" id="res-invested">₹12.6L</div>
+                  <div class="r-label">Total Invested</div>
+                </div>
+                <div class="result-box">
+                  <div class="r-value" id="res-returns">₹1.07 Cr</div>
+                  <div class="r-label">Total Returns</div>
+                </div>
+              </div>
+              <div class="chart-wrap">
+                <canvas id="simChart"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title" id="compare-title">Comparison: Start at Age 22 vs 30</div>
+            <div class="chart-wrap">
+              <canvas id="compareChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════ LEADERBOARD ═══════════ -->
+        <div class="page" id="page-leaderboard">
+          <div class="notification info mb-16">🏆 Leaderboard resets monthly. Stay consistent to top the charts!</div>
+          <div class="card mb-24">
+            <div class="card-title">Top Performers This Month</div>
+            <div class="lb-podium">
+              <div class="podium-item">
+                <div class="podium-avatar" style="background:#6366f1;">AM</div>
+                <div class="podium-bar p2"></div>
+                <div class="podium-name">Arjun M.</div>
+                <div class="podium-xp">4,200 XP</div>
+                <div style="font-size:18px;margin-top:4px;">🥈</div>
+              </div>
+              <div class="podium-item">
+                <div class="podium-avatar" style="background:var(--gold-dark);">PS</div>
+                <div class="podium-bar p1"></div>
+                <div class="podium-name">Priya S.</div>
+                <div class="podium-xp">5,800 XP</div>
+                <div style="font-size:18px;margin-top:4px;">🥇</div>
+              </div>
+              <div class="podium-item">
+                <div class="podium-avatar" style="background:#22c55e;">RK</div>
+                <div class="podium-bar p3"></div>
+                <div class="podium-name">Rohan K.</div>
+                <div class="podium-xp">3,700 XP</div>
+                <div style="font-size:18px;margin-top:4px;">🥉</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="section-header mb-16">
+              <h2>Full Rankings</h2>
+              <span class="chip chip-blue">February 2026</span>
+            </div>
+            <div id="lb-list"></div>
+          </div>
+        </div>
+
+        <!-- ═══════════ CHAT ═══════════ -->
+        <div class="page" id="page-chat">
+          <div class="chat-layout">
+            <div class="chat-sidebar">
+              <div class="chat-sidebar-header">
+                <h3>💬 Community</h3>
+                <p style="font-size:12px;color:var(--text2);margin-top:2px;">Connect with peers</p>
+              </div>
+              <div class="chat-list" id="chat-list"></div>
+            </div>
+            <div class="chat-main">
+              <div class="chat-header">
+                <div class="lb-avatar" id="chat-active-avatar" style="background:var(--blue);">NPS</div>
+                <div class="chat-header-info">
+                  <h3 id="chat-active-name">NPS General</h3>
+                  <p id="chat-active-status">🟢 234 members online</p>
+                </div>
+              </div>
+              <div class="chat-messages" id="chat-messages"></div>
+              <div class="chat-input-area">
+                <input class="chat-input" id="chat-input" placeholder="Type a message..."
+                  onkeydown="if(event.key==='Enter')sendMsg()">
+                <button class="chat-send" onclick="sendMsg()">➤</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════ PROFILE ═══════════ -->
+        <div class="page" id="page-profile">
+          <div class="profile-header-card">
+            <div class="profile-avatar-big" id="prof-avatar-big">R</div>
+            <div>
+              <h2 id="prof-name-big">Ravi Sharma</h2>
+              <p id="prof-email-big">demo@pensionpal.in</p>
+              <div class="level-badge">⚡ Level 3 — Pension Navigator</div>
+              <div style="display:flex;gap:16px;margin-top:12px;flex-wrap:wrap;">
+                <span style="font-size:13px;opacity:.8;">XP: <strong id="prof-xp-big">1,250</strong></span>
+                <span style="font-size:13px;opacity:.8;">Streak: <strong>7 days</strong></span>
+                <span style="font-size:13px;opacity:.8;">Lessons: <strong>3/6</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-2 mb-24">
+            <div class="card">
+              <div class="profile-section">
+                <h3>Edit Profile</h3>
+                <div class="form-row">
+                  <div class="form-group"><label>First Name</label><input type="text" id="pf-fname" value="Ravi"></div>
+                  <div class="form-group"><label>Last Name</label><input type="text" id="pf-lname" value="Sharma"></div>
+                </div>
+                <div class="form-group"><label>Email</label><input type="email" id="pf-email"
+                    value="demo@pensionpal.in"></div>
+                <div class="form-row">
+                  <div class="form-group"><label>Age</label><input type="number" id="pf-age" value="25"></div>
+                  <div class="form-group"><label>Monthly Income (₹)</label><input type="number" id="pf-income"
+                      value="45000"></div>
+                </div>
+                <div class="form-group"><label>Target Retirement Age</label>
+                  <select id="pf-retire">
+                    <option value="55">55</option>
+                    <option value="60" selected>60</option>
+                    <option value="65">65</option>
+                  </select>
+                </div>
+                <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+              </div>
+            </div>
+
+            <div>
+              <div class="card mb-16">
+                <div class="card-title">My Badges</div>
+                <div class="badge-grid">
+                  <div class="badge-card unlocked">
+                    <div class="badge-ico">🏛️</div>NPS Pioneer
+                  </div>
+                  <div class="badge-card unlocked">
+                    <div class="badge-ico">🔥</div>7-Day Streak
+                  </div>
+                  <div class="badge-card unlocked">
+                    <div class="badge-ico">📘</div>First Lesson
+                  </div>
+                  <div class="badge-card locked">
+                    <div class="badge-ico">💎</div>Gold Saver
+                  </div>
+                  <div class="badge-card locked">
+                    <div class="badge-ico">🚀</div>Top 10
+                  </div>
+                  <div class="badge-card locked">
+                    <div class="badge-ico">🎓</div>NPS Expert
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-title">Simulation History</div>
+                <div id="sim-history"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Contribution History</div>
+            <div class="chart-wrap">
+              <canvas id="contribChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /page-content -->
+    </div><!-- /main-content -->
+  </div><!-- /app -->
+
+  <script>
+    // ══════════════════════════════════════
+    //  STATE & STORAGE
+    // ══════════════════════════════════════
+    const STORAGE_KEY = 'pension_pal_user';
+    let state = {
+      loggedIn: false,
+      jwt: null,
+      user: { name: 'Ravi Sharma', email: 'demo@pensionpal.in', xp: 1250, level: 3, streak: 7, age: 25, income: 45000 },
+      currentPage: 'dashboard',
+      lessonPage: null,
+      simChart: null, compareChart: null, dashChart: null, contribChart: null,
+      compareMode: 'age',
+      chatActive: 0
+    };
+
+    // Restore session
+    const saved = sessionStorage.getItem(STORAGE_KEY);
+    if (saved) { const p = JSON.parse(saved); state.loggedIn = p.loggedIn; state.user = p.user || state.user; state.jwt = p.jwt; }
+
+    // ══════════════════════════════════════
+    //  JWT HELPERS (simulated)
+    // ══════════════════════════════════════
+    function makeJWT(payload) {
+      const h = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+      const p = btoa(JSON.stringify({ ...payload, iat: Date.now(), exp: Date.now() + 86400000 }));
+      const s = btoa('pensionpal_secret_sig_' + JSON.stringify(payload));
+      return `${h}.${p}.${s}`;
+    }
+    function verifyJWT(token) {
+      try { const parts = token.split('.'); if (parts.length !== 3) return null; const p = JSON.parse(atob(parts[1])); if (p.exp < Date.now()) return null; return p; }
+      catch (e) { return null; }
+    }
+
+    // ══════════════════════════════════════
+    //  AUTH
+    // ══════════════════════════════════════
+    function switchAuth(tab) {
+      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+      document.querySelector(`.auth-tab:${tab === 'login' ? 'first' : 'last'}-child`).classList.add('active');
+      document.getElementById(`form-${tab}`).classList.add('active');
+    }
+    function handleLogin() {
+      const e = document.getElementById('login-email').value;
+      const p = document.getElementById('login-pass').value;
+      if (!e || !p) { showNotif('Please fill all fields', 'error'); return; }
+      document.getElementById('login-step-1').style.display = 'none';
+      document.getElementById('login-step-2').style.display = 'block';
+    }
+    function otpNext(el, idx) {
+      if (el.value.length === 1 && idx < 3) document.getElementById(`otp${idx + 1}`).focus();
+    }
+    function verifyOTP() {
+      const otp = [0, 1, 2, 3].map(i => document.getElementById(`otp${i}`).value).join('');
+      if (otp === '1234') {
+        state.jwt = makeJWT({ email: 'demo@pensionpal.in', uid: 'u001' });
+        finishLogin();
+      } else { showNotif('Wrong OTP. Use 1234 for demo.', 'error'); }
+    }
+    function signupStep2() {
+      const f = document.getElementById('su-fname').value;
+      const e = document.getElementById('su-email').value;
+      if (!f || !e) { showNotif('Please fill all fields', 'error'); return; }
+      document.getElementById('signup-step-1').style.display = 'none';
+      document.getElementById('signup-step-2').style.display = 'block';
+    }
+    function createAccount() {
+      const age = document.getElementById('su-age').value;
+      const income = document.getElementById('su-income').value;
+      const name = document.getElementById('su-fname').value + ' ' + document.getElementById('su-lname').value;
+      state.user.name = name; state.user.age = parseInt(age) || 25; state.user.income = parseInt(income) || 45000;
+      state.jwt = makeJWT({ email: document.getElementById('su-email').value, uid: 'u_' + Date.now() });
+      finishLogin();
+    }
+    function finishLogin() {
+      state.loggedIn = true;
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ loggedIn: true, user: state.user, jwt: state.jwt }));
+      document.getElementById('auth-wrapper').classList.remove('active');
+      document.getElementById('app').style.display = 'flex';
+      updateUserUI();
+      navigate('dashboard');
+      showNotif('Welcome back, ' + state.user.name.split(' ')[0] + '! 👋', 'success');
+      setTimeout(() => initCharts(), 200);
+    }
+    function logout() {
+      sessionStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    }
+
+    // Init if already logged in
+    if (state.loggedIn && state.jwt && verifyJWT(state.jwt)) {
+      document.getElementById('auth-wrapper').classList.remove('active');
+      document.getElementById('app').style.display = 'flex';
+      updateUserUI();
+      setTimeout(() => { navigate('dashboard'); initCharts(); }, 100);
+    }
+
+    // ══════════════════════════════════════
+    //  NAVIGATION
+    // ══════════════════════════════════════
+    const pageTitles = { dashboard: 'Dashboard', learn: 'Learn', lesson: 'Lesson', simulator: 'Pension Simulator', leaderboard: 'Leaderboard', chat: 'Community Chat', profile: 'My Profile' };
+
+    function navigate(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      state.currentPage = page;
+      const pg = document.getElementById(`page-${page}`);
+      if (pg) pg.classList.add('active');
+      const nav = document.getElementById(`nav-${page}`);
+      if (nav) nav.classList.add('active');
+      document.getElementById('page-title').textContent = pageTitles[page] || page;
+      window.scrollTo(0, 0);
+      if (page === 'simulator') setTimeout(updateSim, 100);
+      if (page === 'leaderboard') renderLeaderboard();
+      if (page === 'chat') renderChat();
+      if (page === 'profile') renderProfile();
+      if (page === 'dashboard') setTimeout(initDashChart, 100);
+    }
+
+    // ══════════════════════════════════════
+    //  USER UI
+    // ══════════════════════════════════════
+    function updateUserUI() {
+      const initials = state.user.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+      document.getElementById('topbar-avatar').textContent = initials;
+      document.getElementById('xp-display').textContent = state.user.xp.toLocaleString();
+      document.getElementById('dash-xp').textContent = state.user.xp.toLocaleString();
+    }
+    function saveProfile() {
+      state.user.name = document.getElementById('pf-fname').value + ' ' + document.getElementById('pf-lname').value;
+      state.user.email = document.getElementById('pf-email').value;
+      state.user.age = parseInt(document.getElementById('pf-age').value) || 25;
+      state.user.income = parseInt(document.getElementById('pf-income').value) || 45000;
+      updateUserUI();
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ loggedIn: true, user: state.user, jwt: state.jwt }));
+      showNotif('Profile updated successfully ✓', 'success');
+    }
+
+    // ══════════════════════════════════════
+    //  LESSONS DATA
+    // ══════════════════════════════════════
+    const lessons = [
+      {
+        title: 'What is NPS?', icon: '🏛️', color: 'blue',
+        cards: [
+          { title: 'National Pension System', content: 'NPS (National Pension System) is a government-backed voluntary pension scheme launched in 2004. It is regulated by PFRDA (Pension Fund Regulatory and Development Authority) and provides long-term retirement savings.' },
+          { title: 'Who Can Join?', content: 'Any Indian citizen between 18–70 years can open an NPS account. NRIs can also enroll. You can open an account online at eNPS portal or through any Point of Presence (POP) like a bank branch.' },
+          { title: 'How Does It Work?', content: 'You contribute regularly to your NPS account. The money is invested in a mix of equity, corporate bonds, and government securities through professional fund managers. At retirement (60), you can withdraw 60% as a lump sum and use 40% to buy an annuity.' },
+        ],
+        quiz: [
+          { q: 'Who regulates NPS?', opts: ['SEBI', 'IRDA', 'PFRDA', 'RBI'], ans: 2 },
+          { q: 'What is the minimum age to join NPS?', opts: ['16', '18', '21', '25'], ans: 1 },
+          { q: 'At retirement, what % can be withdrawn as lump sum?', opts: ['40%', '50%', '60%', '80%'], ans: 2 },
+        ]
+      },
+      {
+        title: 'Tier I vs Tier II', icon: '📊', color: 'gold',
+        cards: [
+          { title: 'Tier I — Pension Account', content: 'Tier I is the mandatory, primary pension account. Withdrawals are restricted until age 60 (with limited partial withdrawals allowed). Contributions to Tier I qualify for tax deductions under 80C and 80CCD.' },
+          { title: 'Tier II — Savings Account', content: 'Tier II is a voluntary, flexible savings account linked to your NPS. There are NO restrictions on withdrawals — you can withdraw anytime. However, Tier II does NOT offer tax benefits (except for central government employees).' },
+          { title: 'Key Differences', content: 'Tier I: Min ₹500/contribution, min ₹1000/year. Tier II: Min ₹250/contribution, no annual minimum. Both can be managed online and offer the same investment options.' },
+        ],
+        quiz: [
+          { q: 'Which tier allows free withdrawals anytime?', opts: ['Tier I', 'Tier II', 'Both', 'Neither'], ans: 1 },
+          { q: 'Which tier offers 80C tax deduction?', opts: ['Tier I', 'Tier II', 'Both', 'Neither'], ans: 0 },
+          { q: 'Minimum contribution in Tier II is?', opts: ['₹100', '₹250', '₹500', '₹1000'], ans: 1 },
+        ]
+      },
+      {
+        title: 'Power of Compounding', icon: '📈', color: 'green',
+        cards: [
+          { title: 'The 8th Wonder of the World', content: 'Compounding means earning returns on your returns. Albert Einstein reportedly called it the 8th wonder of the world. In NPS, your contributions earn returns, which are reinvested to earn more returns — creating exponential growth.' },
+          { title: 'Starting Early: The Real Superpower', content: 'If Ravi invests ₹3000/month starting at age 22 (until 60), he accumulates ~₹2.7 Cr. If Priya starts at 30 with the same amount, she gets only ~₹1.1 Cr. Same total invested — but Ravi earns 2.5x more just by starting 8 years earlier!' },
+          { title: 'Rule of 72', content: 'Divide 72 by your expected return rate to know how many years it takes to double your money. At 10% return: 72÷10 = 7.2 years. Your ₹1 lakh becomes ₹2 lakh in 7 years, ₹4 lakh in 14 years, ₹8 lakh in 21 years!' },
+        ],
+        quiz: [
+          { q: 'At 10% return, how long to double money? (Rule of 72)', opts: ['5.4 yrs', '7.2 yrs', '9 yrs', '12 yrs'], ans: 1 },
+          { q: 'Starting 8 years earlier can multiply your corpus by approximately?', opts: ['1.5x', '2x', '2.5x', '3x'], ans: 2 },
+          { q: 'Compounding works best when?', opts: ['Withdrawn often', 'Started early, left long', 'Returns are taxed', 'Invested in gold'], ans: 1 },
+        ]
+      },
+      {
+        title: 'Retirement Planning Basics', icon: '🎯', color: 'purple',
+        cards: [
+          { title: 'Estimating Your Retirement Corpus', content: 'A common rule is 25x your annual expenses. If you spend ₹5L/year, you need ₹1.25 Cr. This accounts for the 4% withdrawal rule — you can safely withdraw 4% yearly without depleting the corpus. Always factor in inflation (6–7% in India).' },
+          { title: 'Building Your Plan', content: 'Step 1: Calculate post-retirement monthly expense. Step 2: Add inflation for years to retirement. Step 3: Multiply by 300 (25 years of retirement). Step 4: Work backwards to required monthly SIP using compound growth formulas.' },
+          { title: 'NPS in Your Portfolio', content: 'Financial advisors suggest keeping NPS as the core of retirement savings (stable, tax-efficient) while combining with PPF, mutual funds, and real estate for diversification. NPS has historically delivered 9–12% annual returns.' },
+        ],
+        quiz: [
+          { q: 'The "25x rule" is based on which withdrawal rate?', opts: ['2%', '3%', '4%', '5%'], ans: 2 },
+          { q: 'Approx inflation rate to use for Indian retirement planning?', opts: ['2–3%', '4–5%', '6–7%', '10–12%'], ans: 2 },
+          { q: 'NPS has historically delivered returns of approximately?', opts: ['4–6%', '7–8%', '9–12%', '15–18%'], ans: 2 },
+        ]
+      },
+      {
+        title: 'NPS Tax Benefits', icon: '🛡️', color: 'blue',
+        cards: [
+          { title: '80C Deduction', content: 'NPS contributions up to ₹1.5 lakh/year qualify for deduction under Section 80C (same pool as PPF, ELSS). This reduces your taxable income directly.' },
+          { title: '80CCD(1B) — The Exclusive NPS Benefit', content: 'An additional ₹50,000 deduction is available ONLY for NPS under Section 80CCD(1B). This is OVER and ABOVE the ₹1.5L 80C limit. Total tax benefit: up to ₹2 lakh per year!' },
+          { title: 'Employer Contribution', content: 'If your employer contributes to NPS (up to 10% of basic salary), that is also tax-exempt for you under 80CCD(2). This makes NPS one of the most tax-efficient instruments available in India.' },
+        ],
+        quiz: [
+          { q: 'Under 80CCD(1B), exclusive NPS deduction is?', opts: ['₹25,000', '₹50,000', '₹1 lakh', '₹1.5 lakh'], ans: 1 },
+          { q: 'Total maximum NPS tax deduction possible (employee)?', opts: ['₹1L', '₹1.5L', '₹2L', '₹2.5L'], ans: 2 },
+          { q: 'Employer NPS contribution is exempt under?', opts: ['80C', '80D', '80CCD(2)', '80CCD(1B)'], ans: 2 },
+        ]
+      },
+      {
+        title: 'Asset Allocation Strategy', icon: '💼', color: 'gold',
+        cards: [
+          { title: 'Three Asset Classes in NPS', content: 'NPS invests in: Equity (E) — higher returns, higher risk; Corporate Bonds (C) — moderate returns, moderate risk; Government Securities (G) — safest, lowest return. You can choose your own mix or go with Auto Choice.' },
+          { title: 'Active vs Auto Choice', content: 'Active Choice: You decide the % allocation between E, C, G. Max equity is 75% (for under 50). Auto Choice (Lifecycle): Automatically reduces equity and increases G-sec as you age — less work, balanced risk.' },
+          { title: 'Recommended Strategy for Young Investors', content: 'For investors under 35: 75% Equity, 15% Corporate Bonds, 10% G-Sec. Equity exposure reduces by 2.5% per year after age 35. As you approach retirement, a conservative mix of 30% E, 40% C, 30% G is typical.' },
+        ],
+        quiz: [
+          { q: 'Maximum equity allocation allowed in NPS is?', opts: ['50%', '60%', '75%', '100%'], ans: 2 },
+          { q: 'Which choice automatically rebalances as you age?', opts: ['Active Choice', 'Auto Choice', 'G-sec Choice', 'Fund Manager'], ans: 1 },
+          { q: 'For a 28-year-old, recommended equity allocation is?', opts: ['25%', '50%', '75%', '90%'], ans: 2 },
+        ]
+      }
+    ];
+
+    let currentLesson = null;
+    let quizAnswered = [null, null, null];
+
+    function openLesson(idx) {
+      currentLesson = idx;
+      quizAnswered = [null, null, null];
+      const l = lessons[idx];
+      let html = `
+    <div class="lesson-detail-header">
+      <div style="font-size:36px;margin-bottom:10px;">${l.icon}</div>
+      <h2>${l.title}</h2>
+      <p>Earn up to 80 XP by completing this lesson and quiz</p>
+    </div>
+    <h3 style="font-family:'Syne',sans-serif;font-size:16px;margin-bottom:12px;">📖 Reading Material</h3>
+  `;
+      l.cards.forEach(c => {
+        html += `<div class="micro-card"><h3>${c.title}</h3><p>${c.content}</p></div>`;
+      });
+      html += `<div class="micro-card"><h3>🧠 Quick Quiz — Test Yourself</h3>`;
+      l.quiz.forEach((q, qi) => {
+        html += `<p style="font-size:14px;font-weight:600;margin-bottom:10px;margin-top:16px;">Q${qi + 1}: ${q.q}</p>`;
+        q.opts.forEach((o, oi) => {
+          html += `<div class="quiz-option" id="qopt-${qi}-${oi}" onclick="answerQuiz(${qi},${oi},${q.ans})">${o}</div>`;
+        });
+      });
+      html += `<div id="quiz-result" style="display:none;text-align:center;padding:20px;">
+    <div style="font-size:42px;margin-bottom:10px;">🎉</div>
+    <h3 style="font-family:'Syne',sans-serif;font-size:20px;">Lesson Complete!</h3>
+    <p style="color:var(--text2);margin-top:6px;">You earned XP for this lesson</p>
+    <button class="btn btn-gold" style="margin-top:16px;" onclick="navigate('learn')">← Back to Lessons</button>
+  </div></div>`;
+      document.getElementById('lesson-detail-content').innerHTML = html;
+      navigate('lesson');
+      // Award lesson XP
+      awardXP(50, '📘 +50 XP — Lesson Started!');
+    }
+
+    function answerQuiz(qi, oi, correct) {
+      if (quizAnswered[qi] !== null) return;
+      quizAnswered[qi] = oi;
+      const el = document.getElementById(`qopt-${qi}-${oi}`);
+      const correctEl = document.getElementById(`qopt-${qi}-${correct}`);
+      if (oi === correct) { el.classList.add('correct'); awardXP(10, '⚡ +10 XP — Correct!'); }
+      else { el.classList.add('wrong'); correctEl.classList.add('correct'); }
+      if (quizAnswered.every(a => a !== null)) {
+        setTimeout(() => {
+          document.getElementById('quiz-result').style.display = 'block';
+          awardXP(20, '🎓 +20 XP — Quiz Complete!');
+        }, 600);
+      }
+    }
+
+    // ══════════════════════════════════════
+    //  XP & NOTIFICATIONS
+    // ══════════════════════════════════════
+    function awardXP(amt, msg) {
+      state.user.xp += amt;
+      document.getElementById('xp-display').textContent = state.user.xp.toLocaleString();
+      document.getElementById('dash-xp').textContent = state.user.xp.toLocaleString();
+      const t = document.getElementById('xp-toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+    function showNotif(msg, type = 'info') {
+      const c = document.getElementById('notif-container');
+      const d = document.createElement('div');
+      d.className = `notif-pop ${type}`;
+      const icons = { success: '✅', error: '❌', info: 'ℹ️', gold: '⚡' };
+      d.innerHTML = `<span>${icons[type] || 'ℹ️'}</span><span>${msg}</span>`;
+      c.appendChild(d);
+      setTimeout(() => d.classList.add('show'), 10);
+      setTimeout(() => { d.classList.remove('show'); setTimeout(() => d.remove(), 400); }, 3200);
+    }
+
+    // ══════════════════════════════════════
+    //  SIMULATOR
+    // ══════════════════════════════════════
+    function fmtCr(v) { if (v >= 10000000) return '₹' + (v / 10000000).toFixed(2) + ' Cr'; if (v >= 100000) return '₹' + (v / 100000).toFixed(1) + 'L'; return '₹' + v.toLocaleString('en-IN'); }
+    function sipFV(p, r, n) { const mr = r / 100 / 12; return p * ((Math.pow(1 + mr, n) - 1) / mr) * (1 + mr); }
+
+    function updateSim() {
+      const age = +document.getElementById('sl-age').value;
+      const retire = +document.getElementById('sl-retire').value;
+      const invest = +document.getElementById('sl-invest').value;
+      const rate = +document.getElementById('sl-rate').value;
+      document.getElementById('sv-age').textContent = age;
+      document.getElementById('sv-retire').textContent = retire;
+      document.getElementById('sv-invest').textContent = '₹' + invest.toLocaleString('en-IN');
+      document.getElementById('sv-rate').textContent = rate + '%';
+      const n = (retire - age) * 12;
+      const corpus = sipFV(invest, rate, n);
+      const invested = invest * n;
+      const returns = corpus - invested;
+      document.getElementById('res-corpus').textContent = fmtCr(Math.round(corpus));
+      document.getElementById('res-invested').textContent = fmtCr(Math.round(invested));
+      document.getElementById('res-returns').textContent = fmtCr(Math.round(returns));
+      drawSimChart(age, retire, invest, rate);
+      drawCompareChart(age, retire, invest, rate);
+    }
+    function drawSimChart(age, retire, invest, rate) {
+      const ctx = document.getElementById('simChart');
+      const labels = [], data = [];
+      for (let a = age; a <= retire; a += 5) {
+        labels.push(`Age ${a}`);
+        data.push(Math.round(sipFV(invest, rate, (a - age) * 12)));
+      }
+      if (state.simChart) state.simChart.destroy();
+      state.simChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets: [{ label: 'Corpus Growth', data, borderColor: '#1A3AFF', backgroundColor: 'rgba(26,58,255,.08)', fill: true, tension: .4, pointBackgroundColor: '#1A3AFF', pointRadius: 4 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: v => fmtCr(v) }, grid: { color: '#EEF1FF' } }, x: { grid: { display: false } } } }
+      });
+    }
+    function drawCompareChart(age, retire, invest, rate) {
+      const ctx = document.getElementById('compareChart');
+      let l1 = '', l2 = '', p1, p2, labels = [];
+      const mrMax = Math.max(retire - 20, retire - 32);
+      if (state.compareMode === 'age') {
+        l1 = 'Start at 22'; l2 = 'Start at 30'; p1 = invest; p2 = invest;
+        for (let a = 22; a <= retire; a += 3) { labels.push(`Age ${a}`); }
+        const d1 = labels.map((_, i) => Math.round(sipFV(p1, rate, i * 3 * 12)));
+        const d2 = labels.map((lb, i) => { const yr = 22 + i * 3; return yr < 30 ? 0 : Math.round(sipFV(p2, rate, (yr - 30) * 12)); });
+        renderCompareChart(ctx, labels, d1, d2, 'Start at 22', 'Start at 30');
+      } else {
+        p1 = 2000; p2 = 5000;
+        const n = (retire - age) * 12;
+        for (let a = age; a <= retire; a += 3) { labels.push(`Age ${a}`); }
+        const d1 = labels.map((_, i) => Math.round(sipFV(p1, rate, i * 3 * 12)));
+        const d2 = labels.map((_, i) => Math.round(sipFV(p2, rate, i * 3 * 12)));
+        renderCompareChart(ctx, labels, d1, d2, '₹2000/month', '₹5000/month');
+      }
+    }
+    function renderCompareChart(ctx, labels, d1, d2, l1, l2) {
+      if (state.compareChart) state.compareChart.destroy();
+      state.compareChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels, datasets: [
+            { label: l1, data: d1, borderColor: '#1A3AFF', backgroundColor: 'rgba(26,58,255,.06)', fill: true, tension: .4, pointRadius: 3 },
+            { label: l2, data: d2, borderColor: '#F5C842', backgroundColor: 'rgba(245,200,66,.08)', fill: true, tension: .4, pointRadius: 3 }
+          ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { ticks: { callback: v => fmtCr(v) }, grid: { color: '#EEF1FF' } }, x: { grid: { display: false } } } }
+      });
+    }
+    function toggleCompare(mode) {
+      state.compareMode = mode;
+      document.getElementById('cmp-age-btn').classList.toggle('active', mode === 'age');
+      document.getElementById('cmp-inv-btn').classList.toggle('active', mode === 'inv');
+      document.getElementById('compare-title').textContent = mode === 'age' ? 'Comparison: Start at Age 22 vs 30' : 'Comparison: ₹2,000 vs ₹5,000 Monthly';
+      const age = +document.getElementById('sl-age').value;
+      const retire = +document.getElementById('sl-retire').value;
+      const invest = +document.getElementById('sl-invest').value;
+      const rate = +document.getElementById('sl-rate').value;
+      drawCompareChart(age, retire, invest, rate);
+    }
+
+    // ══════════════════════════════════════
+    //  CHARTS
+    // ══════════════════════════════════════
+    function initCharts() {
+      initDashChart();
+      renderContribChart();
+    }
+    function initDashChart() {
+      const ctx = document.getElementById('dashChart');
+      if (!ctx) return;
+      const months = ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'];
+      const data = [45000, 52000, 61000, 72000, 80000, 96000, 108000, 120000];
+      if (state.dashChart) state.dashChart.destroy();
+      state.dashChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels: months, datasets: [{ label: 'Portfolio Value (₹)', data, borderColor: '#1A3AFF', backgroundColor: 'rgba(26,58,255,.07)', fill: true, tension: .5, pointBackgroundColor: '#1A3AFF', pointRadius: 5 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: v => '₹' + v.toLocaleString('en-IN') }, grid: { color: '#EEF1FF' } }, x: { grid: { display: false } } } }
+      });
+    }
+    function renderContribChart() {
+      const ctx = document.getElementById('contribChart');
+      if (!ctx) return;
+      const months = ['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'];
+      const data = [3000, 3000, 3000, 3500, 3500, 3000];
+      if (state.contribChart) state.contribChart.destroy();
+      state.contribChart = new Chart(ctx, {
+        type: 'bar',
+        data: { labels: months, datasets: [{ label: 'Monthly Contribution (₹)', data, backgroundColor: 'rgba(26,58,255,.75)', borderRadius: 8 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: v => '₹' + v.toLocaleString() }, grid: { color: '#EEF1FF' } }, x: { grid: { display: false } } } }
+      });
+    }
+
+    // ══════════════════════════════════════
+    //  LEADERBOARD
+    // ══════════════════════════════════════
+    const lbData = [
+      { name: 'Priya S.', xp: 5800, level: 'Expert', bg: '#f59e0b' },
+      { name: 'Arjun M.', xp: 4200, level: 'Advanced', bg: '#6366f1' },
+      { name: 'Rohan K.', xp: 3700, level: 'Advanced', bg: '#22c55e' },
+      { name: 'Sneha T.', xp: 2900, level: 'Intermediate', bg: '#ec4899' },
+      { name: 'Vikram P.', xp: 2400, level: 'Intermediate', bg: '#3b82f6' },
+      { name: 'Ravi S. (You)', xp: 1250, level: 'Navigator', bg: '#1A3AFF', me: true },
+      { name: 'Anjali R.', xp: 980, level: 'Beginner', bg: '#8b5cf6' },
+      { name: 'Karthik N.', xp: 750, level: 'Beginner', bg: '#14b8a6' },
+    ];
+    function renderLeaderboard() {
+      const c = document.getElementById('lb-list');
+      c.innerHTML = lbData.map((p, i) => `
+    <div class="lb-row ${p.me ? 'me' : ''}">
+      <div class="lb-rank">#${i + 1}</div>
+      <div class="lb-avatar" style="background:${p.bg};">${p.name.split(' ').map(w => w[0]).join('').substring(0, 2)}</div>
+      <div class="lb-info"><h4>${p.name}${p.me ? ' 👈' : ''}</h4><p>${p.level}</p></div>
+      <div class="lb-xp">${p.xp.toLocaleString()} XP</div>
+    </div>`).join('');
+    }
+
+    // ══════════════════════════════════════
+    //  CHAT
+    // ══════════════════════════════════════
+    const chatChannels = [
+      { name: 'NPS General', sub: '234 members', color: 'var(--blue)', initials: 'NPS', unread: 3 },
+      { name: 'Beginners Room', sub: '89 members', color: '#22c55e', initials: 'BR', unread: 0 },
+      { name: 'Tax Tips', sub: '156 members', color: '#f59e0b', initials: 'TT', unread: 1 },
+      { name: 'Market Talk', sub: '78 members', color: '#8b5cf6', initials: 'MT', unread: 0 },
+    ];
+    const chatHistory = {
+      0: [
+        { from: 'Priya S.', msg: 'Has anyone tried the Auto Choice lifecycle fund? Curious about returns.', time: '10:23 AM', bg: '#f59e0b' },
+        { from: 'Arjun M.', msg: 'Yes! I switched to it 2 years ago. Getting around 10.5% CAGR.', time: '10:25 AM', bg: '#6366f1' },
+        { from: 'Sneha T.', msg: 'The equity heavy option (75% equity) has been performing really well this year.', time: '10:28 AM', bg: '#ec4899' },
+        { from: 'Rohan K.', msg: 'I prefer Active Choice to control my allocation myself. 75% equity for now.', time: '10:31 AM', bg: '#22c55e' },
+      ],
+      1: [
+        { from: 'Karthik N.', msg: 'Just opened my NPS account! What do I do next?', time: '9:05 AM', bg: '#14b8a6' },
+        { from: 'Anjali R.', msg: 'Congrats! First step is to complete your KYC and set your contribution amount.', time: '9:08 AM', bg: '#8b5cf6' },
+      ],
+      2: [
+        { from: 'Vikram P.', msg: 'Reminder: 80CCD(1B) gives you ₹50k extra deduction on top of 80C!', time: 'Yesterday', bg: '#3b82f6' },
+      ],
+      3: []
+    };
+
+    function renderChat() {
+      const cl = document.getElementById('chat-list');
+      cl.innerHTML = chatChannels.map((c, i) => `
+    <div class="chat-item ${i === state.chatActive ? 'active' : ''}" onclick="switchChannel(${i})">
+      <div class="chat-item-avatar" style="background:${c.color};">${c.initials}</div>
+      <div class="chat-item-info"><h4>${c.name}</h4><p>${c.sub}</p></div>
+      ${c.unread ? `<div class="chat-unread">${c.unread}</div>` : ''}
+    </div>`).join('');
+      loadMessages();
+    }
+    function switchChannel(idx) {
+      state.chatActive = idx;
+      chatChannels[idx].unread = 0;
+      renderChat();
+      const ch = chatChannels[idx];
+      document.getElementById('chat-active-name').textContent = ch.name;
+      document.getElementById('chat-active-status').textContent = `🟢 ${ch.sub} online`;
+      document.getElementById('chat-active-avatar').textContent = ch.initials;
+      document.getElementById('chat-active-avatar').style.background = ch.color;
+      loadMessages();
+    }
+    function loadMessages() {
+      const msgs = chatHistory[state.chatActive] || [];
+      const c = document.getElementById('chat-messages');
+      c.innerHTML = msgs.map(m => `
+    <div class="msg received">
+      <div class="msg-avatar" style="background:${m.bg};">${m.from.split(' ').map(w => w[0]).join('').substring(0, 2)}</div>
+      <div><div style="font-size:11px;color:var(--text2);margin-bottom:3px;font-weight:600;">${m.from}</div>
+      <div class="msg-bubble">${m.msg}</div>
+      <div class="msg-time">${m.time}</div></div>
+    </div>`).join('');
+      c.scrollTop = c.scrollHeight;
+    }
+    function sendMsg() {
+      const input = document.getElementById('chat-input');
+      const msg = input.value.trim();
+      if (!msg) return;
+      const now = new Date(); const time = now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes() + ' ' + (now.getHours() < 12 ? 'AM' : 'PM');
+      chatHistory[state.chatActive].push({ from: state.user.name, msg, time, bg: 'var(--blue)', me: true });
+      input.value = '';
+      const c = document.getElementById('chat-messages');
+      const initials = state.user.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+      c.innerHTML += `<div class="msg sent"><div class="msg-avatar" style="background:var(--blue);">${initials}</div><div><div class="msg-bubble">${msg}</div><div class="msg-time">${time}</div></div></div>`;
+      c.scrollTop = c.scrollHeight;
+    }
+
+    // ══════════════════════════════════════
+    //  PROFILE PAGE
+    // ══════════════════════════════════════
+    function renderProfile() {
+      const initials = state.user.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+      document.getElementById('prof-avatar-big').textContent = initials;
+      document.getElementById('prof-name-big').textContent = state.user.name;
+      document.getElementById('prof-email-big').textContent = state.user.email || 'demo@pensionpal.in';
+      document.getElementById('prof-xp-big').textContent = state.user.xp.toLocaleString();
+      document.getElementById('sim-history').innerHTML = `
+    <div class="sim-history-item"><div class="sh-icon">🔮</div><div class="sh-info"><h4>Age 25→60, ₹3,000/mo @ 10%</h4><p>Today</p></div><div class="sh-corpus">₹1.2 Cr</div></div>
+    <div class="sim-history-item"><div class="sh-icon">🔮</div><div class="sh-info"><h4>Age 25→60, ₹5,000/mo @ 10%</h4><p>Yesterday</p></div><div class="sh-corpus">₹1.9 Cr</div></div>
+    <div class="sim-history-item"><div class="sh-icon">🔮</div><div class="sh-info"><h4>Age 22→60, ₹3,000/mo @ 12%</h4><p>3 days ago</p></div><div class="sh-corpus">₹3.1 Cr</div></div>
+  `;
+      setTimeout(renderContribChart, 100);
+    }
+
+    // ══════════════════════════════════════
+    //  INIT
+    // ══════════════════════════════════════
+    if (state.loggedIn) {
+      updateUserUI();
+    }
+  </script>
+</body>
+
+</html>
