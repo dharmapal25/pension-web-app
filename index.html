@@ -4,13 +4,209 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PensionPal — Secure Your Future</title>
+  <title>Pension-in — Secure Your Future</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap"
     rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
+
+/* ── NAVBAR ── */
+#pp-navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 62px;
+  background: #0D1333;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  z-index: 9999;
+  box-shadow: 0 2px 24px rgba(0,0,0,.25);
+}
+
+/* Logo */
+.pp-nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.pp-nav-logo .pp-logo-icon {
+  width: 34px; height: 34px;
+  background: #F5C842;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+}
+.pp-nav-logo span {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px; font-weight: 800;
+  color: #fff;
+}
+.pp-nav-logo span b { color: #F5C842; }
+
+/* Desktop nav links */
+.pp-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.pp-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 9px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: rgba(255,255,255,.55);
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: 'DM Sans', sans-serif;
+  transition: color .18s, background .18s;
+  white-space: nowrap;
+}
+.pp-nav-link:hover {
+  color: #fff;
+  background: rgba(255,255,255,.07);
+}
+.pp-nav-link.pp-active {
+  color: #fff;
+  background: #1A3AFF;
+}
+.pp-nav-link .pp-nav-icon { font-size: 16px; }
+
+/* Right side */
+.pp-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.pp-xp-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(245,200,66,.12);
+  border: 1px solid rgba(245,200,66,.25);
+  border-radius: 99px;
+  padding: 5px 12px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #F5C842;
+  font-family: 'DM Sans', sans-serif;
+}
+.pp-nav-avatar {
+  width: 34px; height: 34px;
+  background: #1A3AFF;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-weight: 700; font-size: 13px;
+  cursor: pointer;
+  font-family: 'Syne', sans-serif;
+  border: 2px solid rgba(255,255,255,.15);
+  transition: border-color .2s;
+}
+.pp-nav-avatar:hover { border-color: #F5C842; }
+
+/* Hamburger */
+.pp-hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: 6px;
+  border: none;
+  background: none;
+}
+.pp-hamburger span {
+  display: block;
+  width: 22px; height: 2px;
+  background: rgba(255,255,255,.7);
+  border-radius: 2px;
+  transition: all .3s;
+}
+.pp-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.pp-hamburger.open span:nth-child(2) { opacity: 0; }
+.pp-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* Mobile drawer */
+.pp-mobile-menu {
+  position: fixed;
+  top: 62px; left: 0; right: 0;
+  background: #0D1333;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  padding: 10px 16px 16px;
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 9998;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
+  transform: translateY(-8px);
+  opacity: 0;
+  transition: transform .25s ease, opacity .25s ease;
+}
+.pp-mobile-menu.pp-open {
+  transform: translateY(0);
+  opacity: 1;
+}
+.pp-mobile-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255,255,255,.6);
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  font-family: 'DM Sans', sans-serif;
+  transition: background .18s, color .18s;
+  text-align: left;
+}
+.pp-mobile-link:hover { background: rgba(255,255,255,.07); color: #fff; }
+.pp-mobile-link.pp-active { background: #1A3AFF; color: #fff; }
+.pp-mobile-link .pp-nav-icon { font-size: 18px; width: 22px; text-align: center; }
+
+/* Overlay */
+.pp-overlay {
+  position: fixed;
+  inset: 62px 0 0 0;
+  background: rgba(0,0,0,.4);
+  z-index: 9997;
+  display: none;
+  backdrop-filter: blur(2px);
+}
+
+/* Push content down so navbar doesn't cover it */
+body { padding-top: 62px; }
+
+@media (max-width: 860px) {
+  .pp-nav-links { display: none; }
+  .pp-hamburger { display: flex; }
+  .pp-xp-pill { display: none; }
+  .pp-mobile-menu { display: flex; }
+}
+@media (max-width: 400px) {
+  #pp-navbar { padding: 0 16px; }
+}
+
+
+
+
+
+
+
     :root {
       --blue: #1A3AFF;
       --blue-light: #4F6BFF;
@@ -65,7 +261,7 @@
     }
 
     .sidebar {
-      width: var(--sidebar-w);
+      width: 10%;
       min-height: 100vh;
       background: var(--text);
       display: flex;
@@ -1727,7 +1923,7 @@
     <div class="auth-card">
       <div class="auth-logo">
         <div class="logo-big">🏛️</div>
-        <h1>Pension<span>Pal</span></h1>
+        <h1>Pension<span>-In</span></h1>
         <p>Secure your future, one step at a time</p>
       </div>
       <div class="auth-tabs">
@@ -1807,14 +2003,88 @@
   </div>
 
   <!-- MAIN APP -->
+
+  
+
+  <nav id="pp-navbar">
+  <!-- Logo -->
+  <div class="pp-nav-logo" onclick="ppNavigate('dashboard')">
+    <div class="pp-logo-icon">🏛️</div>
+    <span>Pension<b>-In</b></span>
+  </div>
+
+  <!-- Desktop Links -->
+  <div class="pp-nav-links" id="pp-nav-links">
+    <button class="pp-nav-link pp-active" data-page="dashboard" onclick="ppNavigate('dashboard')">
+      <span class="pp-nav-icon">🏠</span> Dashboard
+    </button>
+    <button class="pp-nav-link" data-page="learn" onclick="ppNavigate('learn')">
+      <span class="pp-nav-icon">📘</span> Learn
+    </button>
+    <button class="pp-nav-link" data-page="simulator" onclick="ppNavigate('simulator')">
+      <span class="pp-nav-icon">🔮</span> Simulator
+    </button>
+    <button class="pp-nav-link" data-page="leaderboard" onclick="ppNavigate('leaderboard')">
+      <span class="pp-nav-icon">🏆</span> Leaderboard
+    </button>
+    <button class="pp-nav-link" data-page="chat" onclick="ppNavigate('chat')">
+      <span class="pp-nav-icon">💬</span> Chat
+    </button>
+    <button class="pp-nav-link" data-page="profile" onclick="ppNavigate('profile')">
+      <span class="pp-nav-icon">👤</span> Profile
+    </button>
+  </div>
+
+  <!-- Right: XP + Avatar + Hamburger -->
+  <div class="pp-nav-right">
+    <div class="pp-xp-pill">⚡ <span id="pp-xp-val">1,250</span> XP</div>
+    <div class="pp-nav-avatar" id="pp-avatar" onclick="ppNavigate('profile')">R</div>
+    <button class="pp-hamburger" id="pp-hamburger" onclick="ppToggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile Drawer -->
+<div class="pp-mobile-menu" id="pp-mobile-menu">
+  <button class="pp-mobile-link pp-active" data-mob="dashboard" onclick="ppNavigate('dashboard')">
+    <span class="pp-nav-icon">🏠</span> Dashboard
+  </button>
+  <button class="pp-mobile-link" data-mob="learn" onclick="ppNavigate('learn')">
+    <span class="pp-nav-icon">📘</span> Learn
+  </button>
+  <button class="pp-mobile-link" data-mob="simulator" onclick="ppNavigate('simulator')">
+    <span class="pp-nav-icon">🔮</span> Simulator
+  </button>
+  <button class="pp-mobile-link" data-mob="leaderboard" onclick="ppNavigate('leaderboard')">
+    <span class="pp-nav-icon">🏆</span> Leaderboard
+  </button>
+  <button class="pp-mobile-link" data-mob="chat" onclick="ppNavigate('chat')">
+    <span class="pp-nav-icon">💬</span> Community Chat
+  </button>
+  <button class="pp-mobile-link" data-mob="profile" onclick="ppNavigate('profile')">
+    <span class="pp-nav-icon">👤</span> Profile
+  </button>
+  <button class="pp-mobile-link" onclick="logout()" style="margin-top:4px;color:rgba(255,255,255,.4);">
+    <span class="pp-nav-icon">🚪</span> Logout
+  </button>
+</div>
+
+<!-- Click-outside overlay -->
+<div class="pp-overlay" id="pp-overlay" onclick="ppCloseMenu()"></div>
+
+
+
+  
+
   <div id="app" style="display:none;">
     <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
-      <div class="sidebar-logo">
+      <!-- <div class="sidebar-logo">
         <div class="logo-icon">🏛️</div>
-        <span>Pension<b>Pal</b></span>
-      </div>
-      <nav class="sidebar-nav">
+        <span>Pension<b>-In</b></span>
+      </div> -->
+      <nav class="sidebar-nav" style="visibility: hidden;" >
         <button class="nav-item active" onclick="navigate('dashboard')" id="nav-dashboard">
           <span class="nav-icon">🏠</span> Dashboard
         </button>
@@ -2406,6 +2676,61 @@
       if (page === 'profile') renderProfile();
       if (page === 'dashboard') setTimeout(initDashChart, 100);
     }
+
+
+      function ppNavigate(page) {
+    // 1. Call your existing navigate() function
+    if (typeof navigate === 'function') navigate(page);
+
+    // 2. Update active state — desktop links
+    document.querySelectorAll('.pp-nav-link').forEach(el => {
+      el.classList.toggle('pp-active', el.dataset.page === page);
+    });
+
+    // 3. Update active state — mobile links
+    document.querySelectorAll('.pp-mobile-link').forEach(el => {
+      el.classList.toggle('pp-active', el.dataset.mob === page);
+    });
+
+    // 4. Close mobile menu
+    ppCloseMenu();
+  }
+
+  function ppToggleMenu() {
+    const menu   = document.getElementById('pp-mobile-menu');
+    const burger = document.getElementById('pp-hamburger');
+    const overlay = document.getElementById('pp-overlay');
+    const isOpen = menu.classList.contains('pp-open');
+    if (isOpen) {
+      ppCloseMenu();
+    } else {
+      menu.classList.add('pp-open');
+      burger.classList.add('open');
+      overlay.style.display = 'block';
+    }
+  }
+
+  function ppCloseMenu() {
+    document.getElementById('pp-mobile-menu').classList.remove('pp-open');
+    document.getElementById('pp-hamburger').classList.remove('open');
+    document.getElementById('pp-overlay').style.display = 'none';
+  }
+
+  /* Keep XP pill & avatar in sync with your state */
+  function ppSyncUser() {
+    if (typeof state !== 'undefined' && state.user) {
+      const xpEl = document.getElementById('pp-xp-val');
+      if (xpEl) xpEl.textContent = state.user.xp.toLocaleString();
+      const initials = state.user.name
+        .split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+      const av = document.getElementById('pp-avatar');
+      if (av) av.textContent = initials;
+    }
+  }
+
+  /* Auto-sync every 2s (lightweight polling) */
+  setInterval(ppSyncUser, 2000);
+  document.addEventListener('DOMContentLoaded', ppSyncUser);
 
     // ══════════════════════════════════════
     //  USER UI
